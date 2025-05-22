@@ -5,7 +5,6 @@ from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import Ingredient, RecipeIngredient, Recipe
 
-
 User = get_user_model()
 
 
@@ -180,6 +179,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     """Короткий сериализатор рецептов"""
+
     class Meta:
         model = Recipe
         fields = (
@@ -192,6 +192,8 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class UserRecipesSerializer(UserSerializer):
+    """Сериализатор рецептов у пользователей"""
+
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(
         source='recipes.count',

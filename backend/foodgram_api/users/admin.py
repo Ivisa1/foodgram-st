@@ -16,7 +16,12 @@ class CustomUserAdmin(UserAdmin, BaseAdmin):
     ordering = ('username',)
     fieldsets = (
         (None, {'fields': ('username', 'id', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'avatar')}),
+        ('Personal info', {'fields': (
+            'first_name',
+            'last_name',
+            'email',
+            'avatar'
+        )}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
@@ -25,7 +30,7 @@ class CustomUserAdmin(UserAdmin, BaseAdmin):
 @admin.register(Follow)
 class FollowAdmin(BaseAdmin):
     """Класс для подписок"""
-    
+
     list_display = ('id', 'subscriber', 'author')
     search_fields = ('subscriber__username', 'author__username')
     fields = ('id', 'subscriber', 'author')

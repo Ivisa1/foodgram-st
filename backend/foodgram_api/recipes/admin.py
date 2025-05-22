@@ -11,7 +11,7 @@ from .models import (
 
 class BaseAdmin(admin.ModelAdmin):
     """Базовый класс"""
-    
+
     readonly_fields = ('id', )
 
 
@@ -23,7 +23,7 @@ class IngredientAdmin(BaseAdmin):
     search_fields = ('name',)
     list_filter = ('name',)
     ordering = ('name',)
-    fields = ('name', 'id', 'measurement_unit')  # Показываем ID при редактировании
+    fields = ('name', 'id', 'measurement_unit')
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -41,13 +41,13 @@ class RecipeAdmin(BaseAdmin):
     list_filter = ('name', 'author')
     inlines = (RecipeIngredientInline,)
     readonly_fields = ('id', 'favorites_count', 'pub_date')
-    
+
     fieldsets = (
         (None, {'fields': ('name', 'id', 'author', 'pub_date')}),
         ('Content', {'fields': ('image', 'text', 'cooking_time')}),
         ('Statistics', {'fields': ('favorites_count',)}),
     )
-    
+
     def favorites_count(self, obj):
         return obj.favorites.count()
     favorites_count.short_description = 'Добавлений в избранное'
@@ -69,6 +69,7 @@ class FavoriteAdmin(BaseAdmin):
     list_display = ('id', 'user', 'recipe')
     search_fields = ('user__username', 'recipe__name')
     fields = ('id', 'user', 'recipe')
+
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(BaseAdmin):

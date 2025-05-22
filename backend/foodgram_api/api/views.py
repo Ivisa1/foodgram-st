@@ -48,6 +48,8 @@ User = get_user_model()
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для работы с ингридиентами"""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (rest_framework_filters.DjangoFilterBackend, )
@@ -57,6 +59,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class UserViewSet(UserViewSet):
+    """Вьюсет для работы с пользователями"""
+
     lookup_url_kwarg = 'pk'
 
     @action(
@@ -175,6 +179,8 @@ class UserViewSet(UserViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с рецептами"""
+
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly)
     filter_backends = (DjangoFilterBackend, )
@@ -251,7 +257,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def create_file_structure(self, user, recipes, ingredients):
         return '\n'.join([
             f"Список покупок пользователя {user}",
-            f"{'-'*(len(user.username)+28)}",
+            f"{'-'*(len(user.username)+29)}",
             "Список рецептов:",
             *(
                 f"- {recipe.name}" for recipe in recipes),
@@ -263,7 +269,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        methods=('get',),
+        methods=('get', ),
         detail=False,
         url_path='download_shopping_cart',
         url_name='download_shopping_cart',
@@ -292,7 +298,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        methods=('get',),
+        methods=('get', ),
         detail=True,
         url_path='get-link',
         url_name='get-link',
