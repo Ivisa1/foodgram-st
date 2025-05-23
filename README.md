@@ -1,4 +1,80 @@
-Находясь в папке infra, выполните команду docker-compose up. При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, подготовит файлы, необходимые для работы фронтенд-приложения, а затем прекратит свою работу.
+# УЧЕБНЫЙ ПРОЕКТ FOODGRAM
 
-По адресу http://localhost изучите фронтенд веб-приложения, а по адресу http://localhost/api/docs/ — спецификацию API.
+## Презентация
 
+**Foodgram** - это SPA приложение, являющееся платформой для публикации рецептов пользователями. В проекте каждый пользователь может добавить себе аватар, добавить рецепты в избранное и составить и скачать корзину с покупками. У каждого рецепта на платформе есть название, список ингредиентов, время приготовления, подробное описание и изображение конечного продукта.
+
+## Развертывание проекта
+
+### Локальный запуск (только API сервис)
+
+#### Скопируйте репозиторий на свой персональный компьютер:
+ 
+```
+git clone https://github.com/Ivisa1/foodgram-st
+```
+Перейдите в папку проекта командой:
+```
+cd foodgram_st
+```
+
+#### Создайте виртуальное окружение и активируйте его:
+
+```
+python -m venv venv
+.\venv\Scripts\activate
+```
+(Windows PowerShell) \
+\
+или
+```
+python -m venv venv
+source venv/bin/activate
+```
+(Linux Bash)
+
+#### Установите зависимости из файла:
+
+```
+pip install -r backend\foodgram_api\requirements.txt
+```
+
+#### В папке infra создайте файл .env по образцу .example_env
+
+#### Выполните миграции, импорт тестовых данных и коллекцию статики:
+
+```
+python backend/foodgram_api/manage.py migrate
+python backend/foodgram_api/manage.py loaddata backend/data/initial_data.json
+python backend/foodgram_api/manage.py collectstatic --noinput
+```
+
+#### Запустите сервер:
+
+```
+cd ..
+py backend/foodgram/manage.py runserver
+```
+
+### Полноценный запуск
+
+#### Перейдите в папку infra и запустите контейнеры:
+
+```
+cd infra
+docker compose up -d --build
+```
+
+#### Выполните миграции, импорт тестовых данных и коллекцию статики:
+
+```
+docker compose exec backend python foodgram/manage.py migrate
+docker compose exec backend python foodgram/manage.py loaddata data/initial_data.json
+docker compose exec backend python foodgram/manage.py collectstatic --noinput
+```
+
+#### Скопируйте тестовые медиа-данные:
+
+```
+docker cp ../data/volume/. foodgram-backend:/app/foodgram_api/media
+```
