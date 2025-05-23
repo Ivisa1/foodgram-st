@@ -41,7 +41,7 @@ pip install -r backend\foodgram_api\requirements.txt
 
 #### В папке infra создайте файл .env по образцу .example_env
 
-#### Выполните миграции, импорт тестовых данных и коллекцию статики:
+#### Выполните миграции, импорт тестовых данных и коллекцию статики (находясь в корневой папке):
 
 ```
 python backend/foodgram_api/manage.py migrate
@@ -52,7 +52,6 @@ python backend/foodgram_api/manage.py collectstatic --noinput
 #### Запустите сервер:
 
 ```
-cd ..
 python backend/foodgram_api/manage.py runserver
 ```
 
