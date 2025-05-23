@@ -58,6 +58,8 @@ python backend/foodgram_api/manage.py runserver
 
 ### Полноценный запуск
 
+#### В файле infra/.env установите значение SQLITE на False
+
 #### Перейдите в папку infra и запустите контейнеры:
 
 ```
@@ -71,10 +73,4 @@ docker compose up -d --build
 docker compose exec backend python foodgram_api/manage.py migrate
 docker compose exec backend python foodgram_api/manage.py loaddata data/initial_data.json
 docker compose exec backend python foodgram_api/manage.py collectstatic --noinput
-```
-
-#### Скопируйте тестовые медиа-данные:
-
-```
-docker cp ../data/volume/. foodgram-backend:/app/foodgram_api/media
 ```
