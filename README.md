@@ -53,7 +53,7 @@ python backend/foodgram_api/manage.py collectstatic --noinput
 
 ```
 cd ..
-py backend/foodgram/manage.py runserver
+python backend/foodgram_api/manage.py runserver
 ```
 
 ### Полноценный запуск
@@ -68,9 +68,9 @@ docker compose up -d --build
 #### Выполните миграции, импорт тестовых данных и коллекцию статики:
 
 ```
-docker compose exec backend python foodgram/manage.py migrate
-docker compose exec backend python foodgram/manage.py loaddata data/initial_data.json
-docker compose exec backend python foodgram/manage.py collectstatic --noinput
+docker compose exec backend python foodgram_api/manage.py migrate
+docker compose exec backend python foodgram_api/manage.py loaddata data/initial_data.json
+docker compose exec backend python foodgram_api/manage.py collectstatic --noinput
 ```
 
 #### Скопируйте тестовые медиа-данные:
