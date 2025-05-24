@@ -1,36 +1,11 @@
-from djoser.serializers import UserSerializer as DjoserUserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import Ingredient, RecipeIngredient, Recipe
+from users.serializers import CustomUserSerializer
 
 User = get_user_model()
-
-
-class UserSerializer(DjoserUserSerializer):
-    """Сериализатор пользователя"""
-
-    is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField(required=False, allow_null=True)
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'avatar'
-        )
-
-    def get_is_subscribed(self, user):
-        request = self.context['request']
-        return (request
-                and request.user.is_authenticated
-                and user.authors.filter(subscriber=request.user).exists())
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -78,7 +53,7 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
 class ReadRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор рецептов при чтении"""
 
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     ingredients = ReadRecipeIngredientSerializer(
         source='recipe_ingredient',
         many=True
@@ -191,7 +166,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class UserRecipesSerializer(UserSerializer):
+class UserRecipesSerializer(CustomUserSerializer):
     """Сериализатор рецептов у пользователей"""
 
     recipes = serializers.SerializerMethodField()
