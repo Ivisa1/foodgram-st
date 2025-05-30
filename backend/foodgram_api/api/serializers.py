@@ -5,6 +5,7 @@ from djoser.serializers import UserSerializer as DjoserUserSerializer
 
 from drf_extra_fields.fields import Base64ImageField
 
+from users.models import Follow
 from recipes.models import Ingredient, RecipeIngredient, Recipe
 from .consts import (
     MIN_INGREDIENT_VALUE,
@@ -236,3 +237,26 @@ class UserRecipesSerializer(CustomUserSerializer):
         return ShortRecipeSerializer(
             obj.recipes.all()[:recipes_limit], many=True, context=self.context
         ).data
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+    """Проверка подписки"""
+
+    class Meta:
+        model = Follow
+        fields = (
+            "author",
+            "subscriber"
+        )
+
+    def validate(self, data):
+        author = data.get('author')
+        subscriber = data.get('subscriber')
+        if author == subscriber:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя себя.')
+        subscription = subscriber.subscriptions.filter(author=author)
+        if subscription.exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны на данного пользователя.')
+        return data

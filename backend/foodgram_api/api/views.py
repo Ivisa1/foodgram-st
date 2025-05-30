@@ -35,7 +35,8 @@ from .serializers import (
     ReadRecipeSerializer,
     CreateRecipeSerializer,
     ShortRecipeSerializer,
-    UserRecipesSerializer
+    UserRecipesSerializer,
+    SubscribeSerializer
 )
 
 from .filters import (
@@ -148,17 +149,12 @@ class UserViewSet(UserViewSet):
         author = get_object_or_404(User, pk=pk)
 
         if request.method == 'POST':
-            if user == author:
-                return Response(
-                    {'detail': 'Нельзя подписаться на самого себя.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            obj, is_created = user.subscriptions.get_or_create(author=author)
-            if not is_created:
-                return Response(
-                    {'detail': f'Вы уже подписаны на {author}'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            subSerializer = SubscribeSerializer(
+                data={'subscriber': user.id, 'author': author.id},
+                context={'request': request}
+            )
+            subSerializer.is_valid(raise_exception=True)
+            subSerializer.save()
             serializer = UserRecipesSerializer(
                 author, context={'request': request}
             )
