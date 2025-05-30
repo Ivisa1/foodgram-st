@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -56,9 +56,9 @@ class Recipe(models.Model):
                 limit_value=MIN_COOKING_TIME,
                 message='Время приготовления - минимум 1 минута.'
             ),
-            MinValueValidator(
+            MaxValueValidator(
                 limit_value=MAX_COOKING_TIME,
-                message='Время приготовления - минимум 32000 минут.'
+                message='Время приготовления - максимум 32000 минут.'
             ),
         )
     )
@@ -109,7 +109,7 @@ class RecipeIngredient(models.Model):
                 limit_value=MIN_INGREDIENT_VALUE,
                 message='Количество должно быть больше 0'
             ),
-            MinValueValidator(
+            MaxValueValidator(
                 limit_value=MAX_INGREDIENT_VALUE,
                 message='Количество должно быть меньше 32001'
             ),

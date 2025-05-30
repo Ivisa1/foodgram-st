@@ -233,10 +233,14 @@ class UserRecipesSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = int(request.query_params.get('recipes_limit', '6'))
+        recipes = obj.recipes.all()
+        recipes_limit = request.query_params.get('recipes_limit')
+
+        if recipes_limit and recipes_limit.isdigit():
+            recipes = recipes[:int(recipes_limit)]
+
         return ShortRecipeSerializer(
-            obj.recipes.all()[:recipes_limit], many=True, context=self.context
-        ).data
+            recipes, context={"request": request}, many=True).data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
