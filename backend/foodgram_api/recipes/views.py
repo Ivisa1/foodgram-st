@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect
 
-from recipes.models import Recipe
+from .models import Recipe
 
 
 def recipe_link(request, recipe_id):

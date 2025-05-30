@@ -3,6 +3,13 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from api.consts import (
+    MIN_INGREDIENT_VALUE,
+    MAX_INGREDIENT_VALUE,
+    MIN_COOKING_TIME,
+    MAX_COOKING_TIME
+)
+
 User = get_user_model()
 
 
@@ -21,6 +28,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ('name', )
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
@@ -43,10 +51,15 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        validators=(MinValueValidator(
-            limit_value=1,
-            message='Время приготовления - минимум 1 минута.'
-        ),
+        validators=(
+            MinValueValidator(
+                limit_value=MIN_COOKING_TIME,
+                message='Время приготовления - минимум 1 минута.'
+            ),
+            MinValueValidator(
+                limit_value=MAX_COOKING_TIME,
+                message='Время приготовления - минимум 32000 минут.'
+            ),
         )
     )
     pub_date = models.DateTimeField(
@@ -67,7 +80,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date', )
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -91,9 +104,15 @@ class RecipeIngredient(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
-        validators=(MinValueValidator(
-            limit_value=1,
-            message='Количество должно быть больше нуля'),
+        validators=(
+            MinValueValidator(
+                limit_value=MIN_INGREDIENT_VALUE,
+                message='Количество должно быть больше 0'
+            ),
+            MinValueValidator(
+                limit_value=MAX_INGREDIENT_VALUE,
+                message='Количество должно быть меньше 32001'
+            ),
         )
     )
 
@@ -106,6 +125,7 @@ class RecipeIngredient(models.Model):
                 name='Для каждого рецепта должны быть уникальные ингридиенты'
             )
         ]
+        ordering = ('recipe__pub_date', 'ingredient__name')
 
     def __str__(self):
         return (f'{self.recipe}: {self.ingredient.name},'
@@ -137,6 +157,7 @@ class BaseModel(models.Model):
                 )
             ),
         )
+        ordering = ('user__username', 'recipe__name',)
 
 
 class Favorite(BaseModel):

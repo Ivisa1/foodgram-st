@@ -1,11 +1,46 @@
 from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
+from djoser.serializers import UserSerializer as DjoserUserSerializer
+
 from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import Ingredient, RecipeIngredient, Recipe
-from users.serializers import CustomUserSerializer
+from .consts import (
+    MIN_INGREDIENT_VALUE,
+    MAX_INGREDIENT_VALUE,
+    MIN_COOKING_TIME,
+    MAX_COOKING_TIME
+)
 
 User = get_user_model()
+
+
+class CustomUserSerializer(DjoserUserSerializer):
+    """Сериализатор пользователя"""
+
+    is_subscribed = serializers.SerializerMethodField()
+    avatar = Base64ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'avatar'
+        )
+
+    def get_is_subscribed(self, user):
+        request = self.context['request']
+        return (
+            request
+            and request.user.is_authenticated
+            and user.authors.filter(subscriber=request.user).exists()
+        )
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -19,21 +54,20 @@ class IngredientSerializer(serializers.ModelSerializer):
 class ReadRecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор связи рецепт-ингридиент при чтении"""
 
-    ingredient = IngredientSerializer(read_only=True)
-    amount = serializers.IntegerField(min_value=1)
+    id = serializers.IntegerField(source='ingredient.id', read_only=True)
+    name = serializers.CharField(source='ingredient.name', read_only=True)
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit',
+        read_only=True
+    )
+    amount = serializers.IntegerField(
+        min_value=MIN_INGREDIENT_VALUE,
+        max_value=MAX_INGREDIENT_VALUE
+    )
 
     class Meta:
         model = RecipeIngredient
-        fields = ('ingredient', 'amount')
-
-    def to_representation(self, instance):
-        """Формат вывода данных"""
-        return {
-            'id': instance.ingredient.id,
-            'name': instance.ingredient.name,
-            'measurement_unit': instance.ingredient.measurement_unit,
-            'amount': instance.amount
-        }
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
@@ -43,7 +77,10 @@ class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
         source='ingredient',
         queryset=Ingredient.objects.all()
     )
-    amount = serializers.IntegerField(min_value=1)
+    amount = serializers.IntegerField(
+        min_value=MIN_INGREDIENT_VALUE,
+        max_value=MAX_INGREDIENT_VALUE
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -99,6 +136,10 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         source='recipe_ingredient', many=True,
     )
     image = Base64ImageField(allow_null=False)
+    cooking_time = serializers.IntegerField(
+        min_value=MIN_COOKING_TIME,
+        max_value=MAX_COOKING_TIME
+    )
 
     class Meta:
         model = Recipe
@@ -128,10 +169,10 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         RecipeIngredient.objects.bulk_create(
             RecipeIngredient(
                 recipe=recipe,
-                ingredient=x['ingredient'],
-                amount=x['amount'],
+                ingredient=ingredient['ingredient'],
+                amount=ingredient['amount'],
             )
-            for x in ingredients
+            for ingredient in ingredients
         )
 
     def create(self, validated_data):
@@ -191,7 +232,7 @@ class UserRecipesSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = int(request.query_params.get('recipes_limit', '10000'))
+        recipes_limit = int(request.query_params.get('recipes_limit', '6'))
         return ShortRecipeSerializer(
             obj.recipes.all()[:recipes_limit], many=True, context=self.context
         ).data

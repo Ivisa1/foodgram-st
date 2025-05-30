@@ -30,7 +30,7 @@ from recipes.models import (
     ShoppingCart,
     RecipeIngredient
 )
-from recipes.serializers import (
+from .serializers import (
     IngredientSerializer,
     ReadRecipeSerializer,
     CreateRecipeSerializer,
@@ -189,8 +189,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return ReadRecipeSerializer
-        else:
-            return CreateRecipeSerializer
+        return CreateRecipeSerializer
 
     def perform_create(self, serializer):
         """Подтверждение записи рецепта в БД"""
@@ -257,7 +256,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def create_file_structure(self, user, recipes, ingredients):
         return '\n'.join([
             f"Список покупок пользователя {user}",
-            f"{'-'*(len(user.username)+29)}",
+            "___________________________",
             "Список рецептов:",
             *(
                 f"- {recipe.name}" for recipe in recipes),

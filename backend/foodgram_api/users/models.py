@@ -32,17 +32,17 @@ class User(AbstractUser):
         blank=True, null=False
     )
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('username', )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = (
         'username',
         'first_name',
         'last_name'
     )
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
-        ordering = ('username', )
 
     def __str__(self):
         return f'{self.username}'
